@@ -6,15 +6,15 @@
 const int Triangular::_max_elems = 1024; //此处必须赋值，才能够算定义
 vector<int> Triangular::_elems;
 
-//构造函数(constructor)
+//memberwise initialization
 Triangular::Triangular(const Triangular &rhs)
     : _length(rhs._length),
       _beg_pos(rhs._beg_pos),
       _next(rhs._next),
       _name("Triangular")
-{
-}
+{}
 
+//构造函数(constructor) member initialization list
 Triangular::Triangular(int len, int beg_pos)
     : _name("Triangular"), _length(len > 0 ? len : 1), _beg_pos(beg_pos > 0 ? beg_pos : 1)
 {
@@ -109,28 +109,30 @@ Triangular &Triangular::operator=(const Triangular &rhs)
     return *this;
 }
 
-void Triangular::display(int length, int beg_pos, std::ostream &os)
+void Triangular::display(int length, int beg_pos, ostream &os)
 {
-    gen_elements(length+beg_pos-1);
-    for(int i = beg_pos;i<length+beg_pos-1;++i)
-    {
-        os<<_elems[i-1]<<' ';
+    const int line_size=10;
+    gen_elements(length + beg_pos - 1);
+    for (int i = beg_pos; i < length + beg_pos; ++i)
+    {  
+        os << _elems[i - 1] <<((i-beg_pos+1)%line_size?" ":"\n\t");
     }
+    cout<<endl;
 }
 
-ostream& operator<<(ostream& os, const Triangular &rhs)
+ostream &operator<<(ostream &os, const Triangular &rhs)
 {
-    os << '(' << rhs.beg_pos() << ',' << rhs.length() << ')';
+    os << '(' << rhs.beg_pos() << ',' << rhs.length() << ')'<<"  ";
 
-    rhs.display(rhs.length(),rhs.beg_pos(),os);
-    
+    rhs.display(rhs.length(), rhs.beg_pos(), os);
+
     return os;
 }
 
-istream& operator>>(istream &is, Triangular &rhs)
+istream &operator>>(istream &is, Triangular &rhs)
 {
-    char ch1,ch2;
-    int bp,len;
+    char ch1, ch2;
+    int bp, len;
     //正常输入下：ch1=‘('; bp = beg_pos; ch2=','; len = length;
     is >> ch1 >> bp >> ch2 >> len;
 
@@ -140,4 +142,3 @@ istream& operator>>(istream &is, Triangular &rhs)
 
     return is;
 }
-

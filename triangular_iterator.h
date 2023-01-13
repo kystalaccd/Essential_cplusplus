@@ -14,25 +14,53 @@
 #ifndef __TRIANGULAR_ITERATOR_H__
 #define __TRIANGULAR_ITERATOR_H__
 
+#define VERSION 1
+
+#if VERSION==1 //实现版本1
+//采用member function operator*()方式定义dereference运算符
+#define __Member_operator__
+//将类成员函数定义为friend
+#define __Member_function_friend__
+#endif
+
+#if VERSION==2  //实现版本2
+//采用non-member function operator*()方式定义dereference运算符
+#define __Non_member_operator__
+//直接将类定义为friend
+#define __Class_friend__
+#endif
 
 class Triangular_iterator
 {
-    friend int operator*(const Triangular_iterator&);
+#ifdef __Non_member_operator__
+    friend int operator*(const Triangular_iterator &);
+#endif
 
 public:
     Triangular_iterator(int index) : _index(index - 1) {}
 
-    int index() const {return _index;}
+    int index() const { return _index; }
 
-    bool operator==(const Triangular_iterator &) const;
-    bool operator!=(const Triangular_iterator &) const;
-    Triangular_iterator &operator++();   //后置increment
-    Triangular_iterator operator++(int); //前置increment
-    Triangular_iterator &operator=(const Triangular_iterator &);
+    inline bool operator==(const Triangular_iterator &) const;
+    inline bool operator!=(const Triangular_iterator &) const;
+    inline Triangular_iterator &operator++();   //后置increment
+    inline Triangular_iterator operator++(int); //前置increment
+    inline Triangular_iterator &operator=(const Triangular_iterator &);
 
+#ifdef __Member_operator__
+    inline int operator*() const;
+#endif
+
+#ifdef __Member_function_friend__
+    //check_integrity()必须为public member function才能被声明为友元函数
+    void check_integrity() const;
+#endif
 private:
     int _index;
+#ifdef __Class_friend__
+    //当Triangular_iterator class被声明为友元类时，check_integrity()可以为private member
     void check_integrity() const;
+#endif
 };
 
 inline bool Triangular_iterator::operator==(const Triangular_iterator &rhs) const
@@ -43,21 +71,6 @@ inline bool Triangular_iterator::operator==(const Triangular_iterator &rhs) cons
 inline bool Triangular_iterator::operator!=(const Triangular_iterator &rhs) const
 {
     return !(*this == rhs);
-}
-
-inline int operator*(const Triangular_iterator &rhs)
-{
-    rhs.check_integrity();
-    return Triangular::_elems[rhs.index()];
-}
-
-inline void Triangular_iterator::check_integrity() const
-{
-    if (_index >= Triangular::max_elems())
-        return;
-
-    if (_index >= Triangular::elems_size())
-        Triangular::gen_elements(_index + 1);
 }
 
 inline Triangular_iterator &Triangular_iterator::operator++()
@@ -85,5 +98,6 @@ inline Triangular_iterator &Triangular_iterator::operator=(const Triangular_iter
 
     return *this;
 }
+
 
 #endif
